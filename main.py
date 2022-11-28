@@ -31,6 +31,25 @@ def get_shop_list_by_dishes(dishes, person_count):
     return result_list
 
 
+def read_files_from_dir(directory):
+    dict_len_files = {}
+    for file_name in os.listdir(directory):
+        with open(os.path.join(directory, file_name), 'r', encoding='utf-8') as file:
+            text = file.readlines()
+            dict_len_files[file_name] = len(text)
+    return dict_len_files
+
+
+def write_result_file(directory, result_file, file_dict):
+    full_path = os.path.join(directory, result_file)
+    for file_name in file_dict.keys():
+        with open(os.path.join(directory, file_name), 'r', encoding='utf-8') as file:
+            text_from_file = file.readlines()
+        with open(full_path, 'a', encoding='utf-8') as file:
+            file.writelines(text_from_file)
+    print(f'Результат слияния файлов записан в файл {full_path}')
+
+
 if __name__ == '__main__':
     # task 1
     cook_book = read_content_file()
@@ -51,28 +70,11 @@ if __name__ == '__main__':
     print()
 
     # task 3
-    current_directory = os.getcwd()
-    folder = 'sorted'
-    files = ['1.txt', '2.txt', '3.txt']
+    directory = 'sorted'
+    file_dict = read_files_from_dir(directory)
+
+    # сортируем словарь по возрастанию значений
+    result_file_dict = dict(sorted(file_dict.items(), key=lambda item: item[1]))
+
     result_file = 'result.txt'
-    list_content = []
-    line_count = 0
-    for file_txt in files:
-        full_path = os.path.join(current_directory, folder, file_txt)
-        with open(full_path, 'r') as file:
-            content = file.readlines()
-            content.insert(0, file_txt + '\n' + str(len(content)) + '\n')
-            if line_count > len(content):
-                list_content.insert(0, content)
-            else:
-                list_content.insert(len(list_content), content)
-            line_count = len(content)
-
-    full_path = os.path.join(current_directory, folder, result_file)
-
-    with open(full_path, 'w') as file:
-        for element in list_content:
-            for line in element:
-                file.writelines(line)
-
-    print(f'Результат слияния файлов записан в файл {full_path}')
+    write_result_file(directory, result_file, result_file_dict)
